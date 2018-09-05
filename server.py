@@ -6,12 +6,11 @@ from bson.json_util import dumps
 import datetime
 
 client = MongoClient('localhost', 27017)
-db = client.db_test
+db = client.db_blog
 app = Flask(__name__)
-api = Api(app) 
+api = Api(app)
 
-collec = db.test_collection
-returno = dumps(collec.find())
+publicacoes = db.col_publicacoes
 
 class Response():
     def RetornoConsulta(data, statusCode):
@@ -28,7 +27,8 @@ class Response():
         
 class ConsultarPublicacoes(Resource):
     def get(self):
-        return Response.RetornoConsulta(returno, 200)
+        listarTodas = dumps(publicacoes.find())        
+        return Response.RetornoConsulta(listarTodas, 200)
 
 
 class InserirPublicacao(Resource):
@@ -38,7 +38,8 @@ class InserirPublicacao(Resource):
         publicacao['subtitulo'] = request.json['subtitulo']
         publicacao['texto'] = request.json['texto']
         publicacao['autor'] = request.json['autor']
-        collec.insert_one(publicacao)
+        publicacao['url'] = request.json['url']
+        publicacoes.insert_one(publicacao)
         return Response.RetornoInsercao(True)
 
 
